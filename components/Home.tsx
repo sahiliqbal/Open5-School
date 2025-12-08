@@ -35,7 +35,7 @@ export const Home: React.FC<HomeProps> = ({ courses, onSelectCourse, onLogout })
     }) => (
         <button 
             onClick={onClick}
-            className={`aspect-square rounded-[24px] p-4 flex flex-col justify-between items-start text-left transition-transform active:scale-95 ${colorClass} relative overflow-hidden group`}
+            className={`aspect-square rounded-[24px] p-4 flex flex-col justify-between items-start text-left transition-transform active:scale-95 ${colorClass} relative overflow-hidden group hover:shadow-lg duration-300`}
         >
             <div className="absolute right-0 top-0 w-16 h-16 bg-white opacity-20 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
             
@@ -82,8 +82,8 @@ export const Home: React.FC<HomeProps> = ({ courses, onSelectCourse, onLogout })
                     <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl transform translate-x-10 -translate-y-10 group-hover:scale-110 transition-transform duration-700"></div>
                     <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500 opacity-20 rounded-full blur-2xl transform -translate-x-5 translate-y-5"></div>
 
-                    <div className="relative z-10">
-                        <div className="flex items-start gap-4 mb-6">
+                    <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                        <div className="flex items-start gap-4">
                             <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg p-1 shrink-0 rotate-3 group-hover:rotate-6 transition-transform">
                                 <img 
                                     src="https://api.dicebear.com/7.x/initials/svg?seed=FI&backgroundColor=e0f2fe&textColor=0ea5e9" 
@@ -100,7 +100,7 @@ export const Home: React.FC<HomeProps> = ({ courses, onSelectCourse, onLogout })
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-2.5 text-xs font-medium text-blue-50 bg-black/5 p-4 rounded-2xl border border-white/5">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-medium text-blue-50 bg-black/5 p-4 rounded-2xl border border-white/5 sm:min-w-[300px]">
                             <div className="flex items-center gap-3">
                                 <MapPin size={14} className="text-white shrink-0" />
                                 <span>Chapainawabganj-6300</span>
@@ -120,7 +120,7 @@ export const Home: React.FC<HomeProps> = ({ courses, onSelectCourse, onLogout })
                 {/* Dashboard Menu Grid */}
                 <div>
                     <h3 className="text-slate-800 font-bold text-lg mb-4 px-1">Quick Actions</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
                         <MenuItem 
                             label="Attendance" 
                             icon={CheckSquare} 
@@ -150,6 +150,15 @@ export const Home: React.FC<HomeProps> = ({ courses, onSelectCourse, onLogout })
                             iconColorClass="text-[#8E24AA]" 
                             onClick={() => {}} 
                         />
+                         <div className="hidden md:block">
+                            <MenuItem 
+                                label="Timetable" 
+                                icon={CalendarDays} 
+                                colorClass="bg-slate-100 hover:bg-slate-200" 
+                                iconColorClass="text-slate-600" 
+                                onClick={() => {}} 
+                            />
+                         </div>
                     </div>
                 </div>
 
@@ -162,14 +171,14 @@ export const Home: React.FC<HomeProps> = ({ courses, onSelectCourse, onLogout })
                         </button>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {courses.map((course) => (
                             <button
                                 key={course.id}
                                 onClick={() => onSelectCourse(course)}
                                 className="w-full bg-white p-1 rounded-[28px] shadow-sm border border-slate-100 hover:shadow-md transition-all active:scale-[0.99] group text-left relative overflow-hidden"
                             >
-                                <div className="p-4 relative z-10 flex flex-col gap-4">
+                                <div className="p-4 relative z-10 flex flex-col gap-4 h-full justify-between">
                                     <div className="flex justify-between items-start">
                                         <div className={`w-14 h-14 rounded-[20px] bg-gradient-to-br ${course.colorFrom} ${course.colorTo} flex items-center justify-center text-3xl text-white shadow-md group-hover:rotate-6 transition-transform duration-300 ring-4 ring-white`}>
                                             {course.icon}

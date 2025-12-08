@@ -95,7 +95,8 @@ const App: React.FC = () => {
     }
 
     return (
-        <div className="max-w-md mx-auto bg-white shadow-2xl min-h-screen relative overflow-hidden font-sans">
+        <div className="w-full mx-auto bg-white shadow-2xl min-h-screen relative overflow-hidden font-sans sm:max-w-5xl sm:my-8 sm:rounded-[32px] sm:border-[8px] sm:border-slate-800">
+            {/* Desktop Mockup Border Adjustment wrapper could go here, keeping it simple for now */}
             
             {screen === ScreenState.WELCOME && (
                 <Welcome 
