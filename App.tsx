@@ -69,7 +69,11 @@ const App: React.FC = () => {
             case ScreenState.WELCOME:
                 return <Welcome onLogin={() => setScreen(ScreenState.LOGIN)} onSignUp={() => setScreen(ScreenState.LOGIN)} />;
             case ScreenState.LOGIN:
-                return <Login onSuccess={() => setScreen(ScreenState.ROLE_SELECTION)} onBack={() => setScreen(ScreenState.WELCOME)} />;
+                return <Login 
+                    onSuccess={() => setScreen(ScreenState.ROLE_SELECTION)} 
+                    onStudentLogin={() => setScreen(ScreenState.STUDENT_HOME)}
+                    onBack={() => setScreen(ScreenState.WELCOME)} 
+                />;
             case ScreenState.ROLE_SELECTION:
                 return <RoleSelection onSelectRole={(role) => {
                     if (role === 'STUDENT') setScreen(ScreenState.STUDENT_HOME);
