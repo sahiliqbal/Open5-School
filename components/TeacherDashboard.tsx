@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MOCK_ATTENDANCE, MOCK_SALARY } from '../constants';
-import { LogOut, DollarSign, Calendar, Plus, Home, ClipboardList, GraduationCap } from 'lucide-react';
+import { LogOut, DollarSign, Calendar, Plus, Home, ClipboardList, GraduationCap, X, CheckCircle, FileText } from 'lucide-react';
 
 interface TeacherDashboardProps {
     onLogout: () => void;
@@ -12,11 +12,23 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onLogout }) 
     const [activeTab, setActiveTab] = useState<Tab>('HOME');
     const [attendance] = useState(MOCK_ATTENDANCE);
 
-    // Mock Data State
+    // Mock Data State for Planner
     const [lessons, setLessons] = useState([
         { id: '1', time: '09:00 AM', subject: 'Math', topic: 'Calculus', classRoom: '302', icon: '📐', color: 'bg-indigo-50' },
         { id: '2', time: '11:30 AM', subject: 'Physics', topic: 'Laws of Motion', classRoom: 'Lab 2', icon: '⚡', color: 'bg-orange-50' }
     ]);
+
+    // Mock Data State for Grading
+    const [submissions, setSubmissions] = useState([
+        { id: '1', studentName: 'Alice Johnson', title: 'Calculus Homework #4', date: 'Feb 24', status: 'PENDING', content: 'Attached is the PDF solution for the derivatives problem set. I found question 3 particularly challenging. I used the chain rule as discussed in class.', grade: '', feedback: '' },
+        { id: '2', studentName: 'Bob Smith', title: 'Physics Lab Report', date: 'Feb 23', status: 'GRADED', content: 'Experiment results regarding projectile motion. Please see the data table on page 2.', grade: '88/100', feedback: 'Great analysis, but check your significant figures in the conclusion.' },
+        { id: '3', studentName: 'Charlie Brown', title: 'Calculus Homework #4', date: 'Feb 24', status: 'PENDING', content: 'Here are my answers. I used the chain rule for the last section.', grade: '', feedback: '' },
+        { id: '4', studentName: 'Daisy Miller', title: 'Biology Essay', date: 'Feb 22', status: 'GRADED', content: 'The structure of the cell membrane and its functions.', grade: 'A', feedback: 'Excellent detail on the phospholipid bilayer.' },
+    ]);
+
+    const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
+    const [gradeInput, setGradeInput] = useState('');
+    const [feedbackInput, setFeedbackInput] = useState('');
 
     const handleAddLesson = () => {
         // In a real app, this would open a modal form
@@ -30,6 +42,23 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onLogout }) 
             color: 'bg-emerald-50'
         };
         setLessons([...lessons, newLesson]);
+    };
+
+    const openGradingModal = (sub: any) => {
+        setSelectedSubmission(sub);
+        setGradeInput(sub.grade);
+        setFeedbackInput(sub.feedback);
+    };
+
+    const handleSaveGrade = () => {
+        if (!selectedSubmission) return;
+        
+        setSubmissions(prev => prev.map(s => 
+            s.id === selectedSubmission.id 
+                ? { ...s, grade: gradeInput, feedback: feedbackInput, status: 'GRADED' }
+                : s
+        ));
+        setSelectedSubmission(null);
     };
 
     const renderHeader = () => (
@@ -109,6 +138,48 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onLogout }) 
                         ))}
                     </div>
                 );
+            case 'ASSIGNMENTS':
+            case 'GRADING':
+                return (
+                    <div className="space-y-4 pb-20">
+                        <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-bold text-slate-800">Student Submissions</h3>
+                            <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">
+                                {submissions.filter(s => s.status === 'PENDING').length} Pending
+                            </span>
+                        </div>
+
+                        <div className="space-y-3">
+                            {submissions.map((sub, idx) => (
+                                <button 
+                                    key={sub.id} 
+                                    onClick={() => openGradingModal(sub)}
+                                    className="w-full bg-white p-4 rounded-[24px] shadow-sm border border-slate-100 flex items-center justify-between active:scale-[0.98] transition-all text-left group animate-in slide-in-from-bottom duration-500"
+                                    style={{ animationDelay: `${idx * 100}ms` }}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg shadow-sm ${
+                                            sub.status === 'GRADED' ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'
+                                        }`}>
+                                            {sub.studentName.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-slate-800 text-sm mb-0.5">{sub.title}</h4>
+                                            <p className="text-xs text-slate-400 font-medium flex items-center gap-1">
+                                                {sub.studentName} <span className="w-1 h-1 rounded-full bg-slate-300"></span> {sub.date}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className={`px-3 py-1 rounded-full text-[10px] font-bold border ${
+                                        sub.status === 'GRADED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-orange-50 text-orange-600 border-orange-100'
+                                    }`}>
+                                        {sub.status}
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                );
             default:
                 return <div className="p-8 text-center text-slate-400 font-medium">Section under maintenance</div>;
         }
@@ -130,6 +201,83 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onLogout }) 
                 >
                     <Plus size={24} />
                 </button>
+            )}
+
+            {/* Grading Modal */}
+            {selectedSubmission && (
+                <div className="absolute inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white w-full h-[95%] sm:h-auto sm:max-h-[85vh] rounded-t-[32px] sm:rounded-[32px] shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300 overflow-hidden m-0 sm:m-4">
+                        {/* Modal Header */}
+                        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
+                            <div>
+                                <h3 className="font-bold text-slate-800 text-lg">Grading Assignment</h3>
+                                <p className="text-xs text-slate-400 font-medium">{selectedSubmission.title}</p>
+                            </div>
+                            <button onClick={() => setSelectedSubmission(null)} className="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-white">
+                            {/* Student Info */}
+                            <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <div className="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-lg shadow-sm">
+                                    {selectedSubmission.studentName.charAt(0)}
+                                </div>
+                                <div>
+                                    <p className="font-bold text-slate-800">{selectedSubmission.studentName}</p>
+                                    <p className="text-xs text-slate-500 font-medium">Submitted on {selectedSubmission.date}</p>
+                                </div>
+                            </div>
+
+                            {/* Submission Content */}
+                            <div>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <FileText size={16} className="text-slate-400"/>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Submission Content</p>
+                                </div>
+                                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                                    <p className="text-sm text-slate-600 leading-relaxed font-medium">"{selectedSubmission.content}"</p>
+                                </div>
+                            </div>
+
+                            {/* Grading Form */}
+                            <div className="space-y-5">
+                                <div>
+                                    <label className="text-xs font-bold text-slate-700 ml-1 uppercase tracking-wide">Grade / Score</label>
+                                    <input 
+                                        type="text" 
+                                        value={gradeInput}
+                                        onChange={(e) => setGradeInput(e.target.value)}
+                                        placeholder="e.g. 95/100 or A"
+                                        className="w-full mt-2 p-4 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold text-slate-800 shadow-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-700 ml-1 uppercase tracking-wide">Feedback</label>
+                                    <textarea 
+                                        value={feedbackInput}
+                                        onChange={(e) => setFeedbackInput(e.target.value)}
+                                        placeholder="Write your feedback here..."
+                                        className="w-full mt-2 p-4 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm h-32 resize-none shadow-sm"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="p-6 border-t border-slate-100 bg-white z-10">
+                            <button 
+                                onClick={handleSaveGrade}
+                                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg rounded-2xl shadow-xl shadow-indigo-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                            >
+                                <CheckCircle size={20} />
+                                Submit Grade
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
 
             {/* Bottom Nav */}

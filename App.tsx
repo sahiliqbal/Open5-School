@@ -28,7 +28,7 @@ const App: React.FC = () => {
                 if (savedScreen) {
                     const parsed = parseInt(savedScreen);
                     if (!isNaN(parsed)) {
-                         // Fallback for detail view refresh
+                         // Fallback for detail view refresh to prevent stuck states
                         if (parsed === ScreenState.STUDENT_DETAILS) return ScreenState.STUDENT_HOME;
                         return parsed;
                     }
@@ -94,9 +94,9 @@ const App: React.FC = () => {
     }
 
     return (
-        <div className="flex justify-center min-h-screen bg-slate-100 sm:py-8 font-sans">
+        <div className="flex justify-center min-h-[100dvh] bg-slate-200 sm:py-8 font-sans">
             {/* Main App Container - Simulates a Mobile Device Frame on Desktop */}
-            <div className="w-full sm:max-w-[480px] md:max-w-[500px] lg:max-w-[1024px] bg-white sm:rounded-[32px] sm:shadow-2xl overflow-hidden relative border-x border-slate-200 sm:border-y h-[100dvh] sm:h-[850px] flex flex-col">
+            <div className="w-full sm:max-w-[480px] md:max-w-[500px] lg:max-w-[1024px] bg-slate-50 sm:rounded-[32px] sm:shadow-2xl overflow-hidden relative border-x border-slate-200 sm:border-y h-[100dvh] sm:h-[850px] flex flex-col">
                 {renderScreen()}
             </div>
         </div>

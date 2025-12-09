@@ -21,7 +21,7 @@ export const Home: React.FC<HomeProps> = ({ courses, onSelectCourse, onLogout })
     const MenuItem = ({ icon: Icon, label, color, onClick, badge }: any) => (
         <button 
             onClick={onClick}
-            className={`flex flex-col items-center gap-2 p-2 rounded-2xl active:scale-95 transition-all hover:bg-slate-50 border border-transparent hover:border-slate-100 group min-w-[72px]`}
+            className={`flex flex-col items-center gap-2 p-2 rounded-2xl active:scale-95 transition-all hover:bg-slate-100/50 border border-transparent hover:border-slate-100 group min-w-[72px]`}
         >
             <div className={`w-14 h-14 rounded-2xl ${color} flex items-center justify-center text-white shadow-md group-hover:shadow-lg transition-shadow relative`}>
                 <Icon size={24} />
@@ -38,7 +38,7 @@ export const Home: React.FC<HomeProps> = ({ courses, onSelectCourse, onLogout })
     );
 
     return (
-        <div className="h-full flex flex-col bg-slate-50 overflow-hidden">
+        <div className="h-full flex flex-col bg-slate-50 overflow-hidden relative">
             {/* Header */}
             <div className="bg-white px-6 py-4 flex justify-between items-center sticky top-0 z-20 shadow-sm border-b border-slate-100 shrink-0">
                 <div className="flex items-center gap-2.5">
@@ -177,7 +177,7 @@ export const Home: React.FC<HomeProps> = ({ courses, onSelectCourse, onLogout })
                 </div>
             </div>
 
-            {/* Modals - Absolute to simulate phone modal */}
+            {/* Modals - Absolute to simulate phone modal within frame */}
             {isBusTrackerOpen && (
                  <div className="absolute inset-0 z-50">
                     <BusTracker isOpen={isBusTrackerOpen} onClose={() => setIsBusTrackerOpen(false)} />

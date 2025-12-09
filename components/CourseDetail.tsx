@@ -26,7 +26,7 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack }) =>
             <div className="px-6 py-4 flex justify-between items-center z-20 absolute top-0 left-0 right-0 pointer-events-none">
                 <button 
                     onClick={onBack}
-                    className="w-10 h-10 bg-white/20 backdrop-blur-md border border-white/20 rounded-xl flex items-center justify-center hover:bg-white/30 transition-colors text-white pointer-events-auto"
+                    className="w-10 h-10 bg-white/20 backdrop-blur-md border border-white/20 rounded-xl flex items-center justify-center hover:bg-white/30 transition-colors text-white pointer-events-auto shadow-lg"
                 >
                     <ChevronLeft size={20} />
                 </button>

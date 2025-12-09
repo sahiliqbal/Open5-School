@@ -74,7 +74,7 @@ export const GeminiTutor: React.FC<GeminiTutorProps> = ({ courseTitle, isOpen, o
                 {/* Header */}
                 <div className="p-4 bg-indigo-600 text-white flex justify-between items-center shadow-md z-10 shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-md">
+                        <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10">
                             <Bot size={24} />
                         </div>
                         <div>
@@ -94,7 +94,7 @@ export const GeminiTutor: React.FC<GeminiTutorProps> = ({ courseTitle, isOpen, o
                     {messages.map((msg) => (
                         <div key={msg.id} className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`flex max-w-[85%] gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-auto ${msg.role === 'user' ? 'bg-indigo-100 text-indigo-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-auto shadow-sm ${msg.role === 'user' ? 'bg-indigo-100 text-indigo-600' : 'bg-emerald-100 text-emerald-600'}`}>
                                     {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                                 </div>
                                 <div className={`p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
@@ -120,14 +120,14 @@ export const GeminiTutor: React.FC<GeminiTutorProps> = ({ courseTitle, isOpen, o
 
                 {/* Input */}
                 <div className="p-4 bg-white border-t border-slate-100 pb-8 sm:pb-4 shrink-0">
-                    <div className="flex gap-2 items-center bg-slate-100 p-1.5 rounded-full border border-slate-200 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
+                    <div className="flex gap-2 items-center bg-slate-100 p-1.5 rounded-full border border-slate-200 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all shadow-inner">
                         <input
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                             placeholder="Ask a question..."
-                            className="flex-1 bg-transparent border-none px-4 py-2 text-sm focus:outline-none placeholder:text-slate-400 text-slate-700"
+                            className="flex-1 bg-transparent border-none px-4 py-2 text-sm focus:outline-none placeholder:text-slate-400 text-slate-700 font-medium"
                         />
                         <button
                             onClick={handleSend}
