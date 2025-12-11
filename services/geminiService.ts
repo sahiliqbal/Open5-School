@@ -1,16 +1,8 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 
 const getClient = () => {
-    // Safety check: Ensure process is defined before accessing env
-    // This prevents "ReferenceError: process is not defined" in some browser bundlers
-    const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : '';
-    
-    if (!apiKey) {
-        console.error("API_KEY is missing. Please ensure it is set in your environment variables.");
-        // We return a dummy client or handle it gracefully to avoid immediate crash, 
-        // but real calls will fail if key is invalid.
-    }
-    return new GoogleGenAI({ apiKey: apiKey || 'MISSING_KEY' });
+    // The API key must be obtained exclusively from the environment variable process.env.API_KEY.
+    return new GoogleGenAI({ apiKey: process.env.API_KEY });
 };
 
 export const getTutorResponse = async (
