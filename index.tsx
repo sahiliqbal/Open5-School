@@ -16,7 +16,11 @@ interface ErrorBoundaryState {
 class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false, error: null, isReported: false };
+    this.state = { 
+      hasError: false, 
+      error: null, 
+      isReported: false 
+    };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
@@ -29,7 +33,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
   handleReport = () => {
     // Mock reporting logic
-    console.log("Issue reported:", this.state.error);
+    console.log("User reported error:", this.state.error);
     this.setState({ isReported: true });
     // In a production app, this would send the error to a service like Sentry
   };

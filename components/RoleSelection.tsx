@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { UserRole } from '../types';
 import { CactusLogo } from './CactusLogo';
@@ -15,8 +14,9 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ onSelectRole }) =>
                 <div className="flex items-center gap-3 mb-4">
                     <CactusLogo size={64} />
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-800 tracking-tight leading-none">
-                            Open<span className="text-[#0EA5E9]">5</span>
+                        <h1 className="text-3xl font-bold tracking-tight leading-none flex items-center">
+                            <span className="text-[#F97316]">Open</span>
+                            <span className="text-[#DC2626]">5</span>
                         </h1>
                         <p className="text-xs text-slate-400 font-medium tracking-wide uppercase">EduSphere ERP System</p>
                     </div>
