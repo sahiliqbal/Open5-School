@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MOCK_ATTENDANCE, MOCK_SALARY } from '../constants';
-import { LogOut, DollarSign, Calendar, Plus, Home, ClipboardList, GraduationCap, X, CheckCircle, FileText, Users, Clock, MapPin, Check, Layers, Square } from 'lucide-react';
+import { LogOut, DollarSign, Calendar, Plus, Home, ClipboardList, GraduationCap, X, CheckCircle, FileText, Users, Clock, MapPin, Check, Layers, Square, BellRing } from 'lucide-react';
 
 interface TeacherDashboardProps {
     onLogout: () => void;
@@ -38,6 +38,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onLogout }) 
     const [gradeInput, setGradeInput] = useState('');
     const [feedbackInput, setFeedbackInput] = useState('');
 
+    // Notifications & Real-time State
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [notificationToast, setNotificationToast] = useState<{name: string, title: string} | null>(null);
+
     // Bulk Grading State
     const [isSelectionMode, setIsSelectionMode] = useState(false);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -47,6 +51,49 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onLogout }) 
         setIsSelectionMode(false);
         setSelectedIds([]);
     }, [activeTab]);
+
+    // Simulate Real-time Submissions
+    useEffect(() => {
+        const interval = setInterval(() => {
+            // 50% chance to receive a submission every 8 seconds for demo purposes
+            if (Math.random() > 0.5) {
+                const names = ['Liam N.', 'Olivia P.', 'Noah R.', 'Emma W.', 'James B.'];
+                const randomName = names[Math.floor(Math.random() * names.length)];
+                
+                const newSubmission = {
+                    id: Date.now().toString(),
+                    studentName: randomName,
+                    title: 'Calculus Homework #4',
+                    date: 'Feb 24',
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    status: 'PENDING',
+                    content: 'Just uploaded my late submission. Sorry!',
+                    grade: '',
+                    feedback: ''
+                };
+                
+                setSubmissions(prev => [newSubmission, ...prev]);
+                
+                // Triggers notification only if not currently grading that specific item
+                if (!selectedSubmission) {
+                    setUnreadCount(prev => prev + 1);
+                    setNotificationToast({ name: newSubmission.studentName, title: newSubmission.title });
+                    
+                    // Auto hide toast
+                    setTimeout(() => setNotificationToast(null), 4000);
+                }
+            }
+        }, 8000);
+        
+        return () => clearInterval(interval);
+    }, [selectedSubmission]);
+
+    const handleTabChange = (tabId: Tab) => {
+        setActiveTab(tabId);
+        if (tabId === 'GRADING') {
+            setUnreadCount(0); // Clear badge when viewing grading
+        }
+    };
 
     const handleAddLesson = () => {
         const newLesson = {
@@ -118,7 +165,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onLogout }) 
                     <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Teacher Portal</p>
                     <h1 className="text-3xl font-bold">Hello, Sarah.</h1>
                 </div>
-                <button onClick={onLogout} className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/20 transition-colors border border-white/10">
+                <button onClick={onLogout} className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/20 transition-colors border border-white/10 relative">
                     <LogOut size={18} />
                 </button>
             </div>
@@ -270,7 +317,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onLogout }) 
                                 <button 
                                     key={sub.id} 
                                     onClick={() => isSelectionMode ? toggleSelection(sub.id) : openGradingModal(sub)}
-                                    className={`w-full bg-white p-4 rounded-[24px] shadow-sm border flex items-center justify-between active:scale-[0.98] transition-all text-left group ${
+                                    className={`w-full bg-white p-4 rounded-[24px] shadow-sm border flex items-center justify-between active:scale-[0.98] transition-all text-left group animate-in fade-in slide-in-from-top-2 duration-300 ${
                                         isSelectionMode && selectedIds.includes(sub.id) ? 'border-indigo-500 ring-1 ring-indigo-500 bg-indigo-50/10' : 'border-slate-100 hover:shadow-md'
                                     }`}
                                 >
@@ -315,7 +362,24 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onLogout }) 
         <div className="h-full flex flex-col bg-slate-50 relative animate-in fade-in duration-500">
             {renderHeader()}
             
-            <div className="flex-1 overflow-y-auto p-6 no-scrollbar">
+            <div className="flex-1 overflow-y-auto p-6 no-scrollbar relative">
+                {/* Toast Notification */}
+                {notificationToast && (
+                    <div className="absolute top-4 left-6 right-6 z-40 animate-in slide-in-from-top fade-in duration-500">
+                        <div className="bg-slate-900 text-white p-4 rounded-[20px] shadow-2xl flex items-center gap-4">
+                            <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center shrink-0 animate-pulse">
+                                <BellRing size={20} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-xs font-bold text-indigo-300 uppercase tracking-wide">New Submission</p>
+                                <p className="text-sm font-bold truncate">{notificationToast.name} • {notificationToast.title}</p>
+                            </div>
+                            <button onClick={() => setNotificationToast(null)} className="p-1 hover:bg-white/10 rounded-full">
+                                <X size={16} />
+                            </button>
+                        </div>
+                    </div>
+                )}
                 {renderContent()}
             </div>
             
@@ -494,14 +558,19 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onLogout }) 
                         ].map((tab) => (
                             <button 
                                 key={tab.id} 
-                                onClick={() => setActiveTab(tab.id as Tab)}
+                                onClick={() => handleTabChange(tab.id as Tab)}
                                 className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
                                     activeTab === tab.id 
                                     ? 'bg-slate-900 text-white shadow-lg transform -translate-y-1' 
                                     : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
                                 }`}
                             >
-                                <tab.icon size={20} strokeWidth={2.5} />
+                                <div className="relative">
+                                    <tab.icon size={20} strokeWidth={2.5} />
+                                    {tab.id === 'GRADING' && unreadCount > 0 && (
+                                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-white ring-1 ring-white animate-pulse"></span>
+                                    )}
+                                </div>
                             </button>
                         ))}
                     </div>
