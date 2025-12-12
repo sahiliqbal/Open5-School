@@ -24,7 +24,7 @@ export const CactusLogo: React.FC<CactusLogoProps> = ({ className = "", size = 6
                     </linearGradient>
                 </defs>
 
-                {/* Abstract X / Helix Shape */}
+                {/* Abstract X / Helix Shape representing Open5 */}
                 {/* Stroke 1: Top-Left to Bottom-Right */}
                 <path 
                     d="M 60 50 C 60 50, 100 100, 140 150" 

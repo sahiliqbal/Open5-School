@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LogOut, Bell, Home, PieChart, Users, Calendar, Package, Plus, UserCog, MessageSquare, BookOpen, Search, Filter, Ban, CheckCircle, Activity, Award, Mail, Phone, X } from 'lucide-react';
+import { LogOut, Bell, Home, PieChart, Users, Calendar, Package, Plus, UserCog, MessageSquare, BookOpen, Search, Filter, Ban, CheckCircle, Activity, Award, Mail, Phone, X, AlertTriangle } from 'lucide-react';
 import { MOCK_COURSES } from '../constants';
 
 interface AdminDashboardProps {
@@ -35,15 +35,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     const [activeTab, setActiveTab] = useState<Tab>('DASHBOARD');
     
     // Student Module State
+    const [students, setStudents] = useState<StudentProfile[]>(MOCK_STUDENTS_DATA);
     const [studentSearch, setStudentSearch] = useState('');
     const [studentFilter, setStudentFilter] = useState<'ALL' | 'ACTIVE' | 'SUSPENDED'>('ALL');
     const [selectedStudent, setSelectedStudent] = useState<StudentProfile | null>(null);
+    const [showSuspendDialog, setShowSuspendDialog] = useState(false);
 
-    const filteredStudents = MOCK_STUDENTS_DATA.filter(s => {
+    const filteredStudents = students.filter(s => {
         const matchesSearch = s.name.toLowerCase().includes(studentSearch.toLowerCase()) || s.rollNo.includes(studentSearch);
         const matchesFilter = studentFilter === 'ALL' || s.status === studentFilter;
         return matchesSearch && matchesFilter;
     });
+
+    const handleSuspendStudent = () => {
+        if (!selectedStudent) return;
+        
+        const updatedStudents = students.map(s => 
+            s.id === selectedStudent.id 
+                ? { ...s, status: 'SUSPENDED' as const } 
+                : s
+        );
+        
+        setStudents(updatedStudents);
+        // Update local selected state to reflect change immediately
+        setSelectedStudent({ ...selectedStudent, status: 'SUSPENDED' });
+        setShowSuspendDialog(false);
+    };
 
     const StatCard = ({ label, value, color }: any) => (
         <div className={`p-5 rounded-[24px] ${color} text-white shadow-lg relative overflow-hidden group hover:scale-[1.02] transition-transform`}>
@@ -61,7 +78,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                 return (
                     <div className="space-y-6 animate-in fade-in duration-300">
                         <div className="grid grid-cols-2 gap-4">
-                            <StatCard label="Students" value="5,909" color="bg-orange-500" />
+                            <StatCard label="Students" value={students.length.toLocaleString()} color="bg-orange-500" />
                             <StatCard label="Teachers" value="60" color="bg-indigo-500" />
                             <StatCard label="Revenue" value="$24k" color="bg-emerald-500" />
                             <StatCard label="Messages" value="128" color="bg-purple-500" />
@@ -280,7 +297,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                                     <p className="text-slate-500 font-medium">Student ID: {selectedStudent.rollNo}</p>
                                     <div className="flex items-center gap-2 mt-3">
                                         <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide border ${
-                                            selectedStudent.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-red-100 text-red-700 border-red-200'
+                                            selectedStudent.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                                            selectedStudent.status === 'SUSPENDED' ? 'bg-red-100 text-red-700 border-red-200' :
+                                            'bg-slate-100 text-slate-500 border-slate-200'
                                         }`}>
                                             {selectedStudent.status}
                                         </span>
@@ -344,12 +363,49 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                                 {/* Danger Zone */}
                                 <div className="mt-8 pt-6 border-t border-slate-200">
                                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-4">Management</h4>
-                                    <button className="w-full py-3 bg-red-50 text-red-600 font-bold rounded-[16px] border border-red-100 flex items-center justify-center gap-2 hover:bg-red-100 transition-colors">
+                                    <button 
+                                        onClick={() => setShowSuspendDialog(true)}
+                                        disabled={selectedStudent.status === 'SUSPENDED'}
+                                        className={`w-full py-3 font-bold rounded-[16px] border flex items-center justify-center gap-2 transition-colors ${
+                                            selectedStudent.status === 'SUSPENDED'
+                                            ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+                                            : 'bg-red-50 text-red-600 border-red-100 hover:bg-red-100'
+                                        }`}
+                                    >
                                         <Ban size={18} />
-                                        Suspend Student Account
+                                        {selectedStudent.status === 'SUSPENDED' ? 'Account Suspended' : 'Suspend Student Account'}
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Suspend Confirmation Dialog */}
+            {showSuspendDialog && selectedStudent && (
+                 <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white p-6 rounded-[24px] shadow-2xl max-w-sm w-full mx-6 animate-in zoom-in-95 duration-200">
+                        <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-4 mx-auto">
+                            <AlertTriangle size={24} />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-900 text-center mb-2">Suspend Account?</h3>
+                        <p className="text-sm text-slate-500 text-center mb-6 leading-relaxed">
+                            Are you sure you want to suspend <span className="font-bold text-slate-800">{selectedStudent.name}</span>? They will lose access to the portal immediately.
+                        </p>
+                        <div className="flex gap-3">
+                            <button 
+                                onClick={() => setShowSuspendDialog(false)}
+                                className="flex-1 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={handleSuspendStudent}
+                                className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl shadow-lg shadow-red-200 hover:bg-red-600 transition-colors"
+                            >
+                                Suspend
+                            </button>
                         </div>
                     </div>
                 </div>
