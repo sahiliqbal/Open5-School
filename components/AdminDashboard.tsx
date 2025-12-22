@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LogOut, Bell, Home, PieChart, Users, Calendar, Package, Plus, UserCog, MessageSquare, BookOpen, Search, Filter, Ban, CheckCircle, Activity, Award, Mail, Phone, X, AlertTriangle, Clock, MapPin, KeyRound, GraduationCap, Edit3, BarChart3, Trash2, Save, UserPlus, TrendingUp } from 'lucide-react';
+import { LogOut, Bell, Home, PieChart, Users, Calendar, Package, Plus, UserCog, MessageSquare, BookOpen, Search, Filter, Ban, CheckCircle, Activity, Award, Mail, Phone, X, AlertTriangle, Clock, MapPin, KeyRound, GraduationCap, Edit3, BarChart3, Trash2, Save, UserPlus, TrendingUp, Info } from 'lucide-react';
 import { MOCK_COURSES } from '../constants';
 
 interface AdminDashboardProps {
@@ -36,6 +36,7 @@ interface StudentProfile {
     enrollmentDate: string;
     attendanceHistory: AttendanceRecord[];
     performance: SubjectGrade[];
+    suspensionReason?: string;
 }
 
 const MOCK_STUDENTS_DATA: StudentProfile[] = [
@@ -92,7 +93,8 @@ const MOCK_STUDENTS_DATA: StudentProfile[] = [
             { subject: 'Mathematics', grade: 'C', score: 72 },
             { subject: 'Physics', grade: 'D', score: 64 },
             { subject: 'English', grade: 'B', score: 82 },
-        ]
+        ],
+        suspensionReason: 'Frequent unauthorized absences and disruptive classroom behavior.'
     },
     { 
         id: '3', 
@@ -130,6 +132,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     const [studentFilter, setStudentFilter] = useState<'ALL' | 'ACTIVE' | 'SUSPENDED' | 'ALUMNI'>('ALL');
     const [selectedStudent, setSelectedStudent] = useState<StudentProfile | null>(null);
     const [showSuspendDialog, setShowSuspendDialog] = useState(false);
+    const [suspensionInput, setSuspensionInput] = useState('');
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -197,15 +200,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     };
 
     const handleSuspendStudent = () => {
-        if (!selectedStudent) return;
+        if (!selectedStudent || !suspensionInput.trim()) {
+            triggerToast('Please provide a reason for suspension.', 'error');
+            return;
+        }
         const updatedStudents = students.map(s => 
             s.id === selectedStudent.id 
-                ? { ...s, status: 'SUSPENDED' as const } 
+                ? { ...s, status: 'SUSPENDED' as const, suspensionReason: suspensionInput } 
                 : s
         );
         setStudents(updatedStudents);
-        setSelectedStudent({ ...selectedStudent, status: 'SUSPENDED' });
+        setSelectedStudent({ ...selectedStudent, status: 'SUSPENDED', suspensionReason: suspensionInput });
         setShowSuspendDialog(false);
+        setSuspensionInput('');
         triggerToast(`${selectedStudent.name} has been suspended.`);
     };
 
@@ -564,6 +571,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                             </div>
 
                             <div className="space-y-8">
+                                {selectedStudent.status === 'SUSPENDED' && selectedStudent.suspensionReason && (
+                                    <div className="bg-red-50 border border-red-100 p-5 rounded-[28px] animate-in zoom-in duration-300">
+                                        <div className="flex items-center gap-2 mb-2 text-red-600">
+                                            <Info size={16} />
+                                            <span className="text-[10px] font-black uppercase tracking-widest">Suspension Details</span>
+                                        </div>
+                                        <p className="text-sm font-medium text-red-800 leading-relaxed italic">
+                                            "{selectedStudent.suspensionReason}"
+                                        </p>
+                                    </div>
+                                )}
+
                                 <div>
                                     <div className="flex justify-between items-center mb-4">
                                         <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -666,10 +685,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                             <AlertTriangle size={32} />
                         </div>
                         <h3 className="text-xl font-black text-slate-900 text-center mb-2">Suspend Access?</h3>
-                        <p className="text-xs text-slate-500 text-center mb-8 leading-relaxed">Revoking access for {selectedStudent.name} will prevent any portal logins immediately.</p>
+                        <p className="text-xs text-slate-500 text-center mb-6 leading-relaxed">Please provide a reason for revoking {selectedStudent.name}'s portal access.</p>
+                        
+                        <div className="mb-8">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Suspension Reason</label>
+                            <textarea 
+                                value={suspensionInput}
+                                onChange={(e) => setSuspensionInput(e.target.value)}
+                                placeholder="e.g., Unpaid fees, Behavioral issues..."
+                                className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 h-24 resize-none"
+                            />
+                        </div>
+
                         <div className="flex flex-col gap-3">
-                            <button onClick={handleSuspendStudent} className="w-full py-4 bg-amber-600 text-white font-black rounded-2xl">Confirm Suspension</button>
-                            <button onClick={() => setShowSuspendDialog(false)} className="w-full py-4 bg-slate-50 text-slate-600 font-black rounded-2xl">Cancel</button>
+                            <button 
+                                onClick={handleSuspendStudent} 
+                                className="w-full py-4 bg-amber-600 text-white font-black rounded-2xl hover:bg-amber-700 transition-colors"
+                            >
+                                Confirm Suspension
+                            </button>
+                            <button 
+                                onClick={() => { setShowSuspendDialog(false); setSuspensionInput(''); }} 
+                                className="w-full py-4 bg-slate-50 text-slate-600 font-black rounded-2xl hover:bg-slate-100 transition-colors"
+                            >
+                                Cancel
+                            </button>
                         </div>
                     </div>
                 </div>
