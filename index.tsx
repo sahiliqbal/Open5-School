@@ -1,5 +1,5 @@
 
-// Use Component and ErrorInfo from react and explicitly reference properties to fix property missing errors
+// Use Component and ErrorInfo from react
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -16,24 +16,15 @@ interface ErrorBoundaryState {
 }
 
 // ErrorBoundary class component to catch rendering errors.
-// We explicitly declare 'state' and 'props' properties to resolve TypeScript errors where
-// inherited members from Component are not correctly recognized in certain compiler configurations.
+// Inheriting from Component<Props, State> automatically provides setState, this.props, and this.state.
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  // Explicitly declare state and props to ensure the TypeScript compiler correctly identifies them.
-  public state: ErrorBoundaryState = { 
+  // Initialize state using class field syntax, which is the standard approach in modern React with TypeScript
+  state: ErrorBoundaryState = { 
     hasError: false, 
     error: null, 
     isReported: false 
   };
   
-  public props: ErrorBoundaryProps;
-
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    // Explicitly assigning props to satisfy member existence checks
-    this.props = props;
-  }
-
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error, isReported: false };
   }
@@ -42,10 +33,9 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     console.error("Uncaught error:", error, errorInfo);
   }
 
+  // Use arrow function to maintain 'this' context; setState is inherited from Component.
   handleReport = () => {
-    // Reference explicitly defined state
     console.log("User reported error:", this.state.error);
-    // Inherited setState should now be correctly identified
     this.setState({ isReported: true });
   };
 
@@ -55,7 +45,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   };
 
   render() {
-    // Reference explicitly defined state
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center font-sans">
@@ -79,7 +68,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             
             <button 
               onClick={this.handleReport}
-              // Accessing state which is now explicitly defined on the class
               disabled={this.state.isReported}
               className={`w-full py-4 bg-white border-2 rounded-[20px] font-bold text-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 ${
                   this.state.isReported 
@@ -115,7 +103,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       );
     }
 
-    // Accessing props which is now explicitly defined on the class
     return this.props.children;
   }
 }
